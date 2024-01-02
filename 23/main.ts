@@ -26,34 +26,6 @@ type InvMap = {
   '🔴': '🟡'
 }
 
-type DiagMap = {
-  r0: ['2-0', '3-1', '4-2', '5-3' ];
-  r1: ['1-0', '2-1', '3-2', '4-3', '5-4'];
-  r2: ['0-0' , '1-1' , '2-2' , '3-3' , '4-4' , '5-5'];
-  r3: ['0-1' , '1-2' , '2-3' , '3-4' , '4-5' , '5-6'];
-  r4: ['0-2' , '1-3' , '2-4' , '3-5' , '4-6'];
-  r5: ['0-3' , '1-4' , '2-5' , '4-6'];
-  l0: ['0-3' , '1-2' , '2-1' , '3-0'];
-  l1: ['0-4' , '1-3' , '2-2' , '3-1' , '4-0'];
-  l2: ['0-5' , '1-4' , '2-3' , '3-2' , '4-1' , '5-0'];
-  l3: ['0-6' , '1-5' , '2-4' , '3-3' , '4-2' , '5-1'];
-  l4: ['1-6' , '2-5' , '3-4' , '4-3' , '5-2'];
-  l5: ['2-6' , '3-5' , '4-4' , '5-3'];
-}
-
-type ConcatDiag<Board extends Connect4Board, Diag extends string[]> = 
-  Diag extends [infer Next, ...infer Rest extends string[]] 
-  ? Next extends `${infer R extends ROWS}-${infer C extends COLS}`
-    ? `${Board[R][C]}${ConcatDiag<Board,Rest>}`
-    : never
-  : '';
-
-type AllDiags<Board extends Connect4Board> = Values<{
-  [K in keyof DiagMap]: ConcatDiag<Board, DiagMap[K]>;
-}>
-
-type DiagWinner<Board extends Connect4Board> = WinnerDetect<AllDiags<Board>>;
-
 type ROWS = 0|1|2|3|4|5;
 type COLS = 0|1|2|3|4|5|6;
 
@@ -99,6 +71,36 @@ type PlaceInRow<Row extends Connect4Cell[], Col extends COLS, Chip extends Conne
   ? [Row[0],Row[1],Row[2],Row[3],Row[4],Row[5],Chip]
   : never;
 
+
+
+type DiagMap = {
+  r0: ['2-0', '3-1', '4-2', '5-3' ];
+  r1: ['1-0', '2-1', '3-2', '4-3', '5-4'];
+  r2: ['0-0' , '1-1' , '2-2' , '3-3' , '4-4' , '5-5'];
+  r3: ['0-1' , '1-2' , '2-3' , '3-4' , '4-5' , '5-6'];
+  r4: ['0-2' , '1-3' , '2-4' , '3-5' , '4-6'];
+  r5: ['0-3' , '1-4' , '2-5' , '4-6'];
+  l0: ['0-3' , '1-2' , '2-1' , '3-0'];
+  l1: ['0-4' , '1-3' , '2-2' , '3-1' , '4-0'];
+  l2: ['0-5' , '1-4' , '2-3' , '3-2' , '4-1' , '5-0'];
+  l3: ['0-6' , '1-5' , '2-4' , '3-3' , '4-2' , '5-1'];
+  l4: ['1-6' , '2-5' , '3-4' , '4-3' , '5-2'];
+  l5: ['2-6' , '3-5' , '4-4' , '5-3'];
+}
+
+type ConcatDiag<Board extends Connect4Board, Diag extends string[]> = 
+  Diag extends [infer Next, ...infer Rest extends string[]] 
+  ? Next extends `${infer R extends ROWS}-${infer C extends COLS}`
+    ? `${Board[R][C]}${ConcatDiag<Board,Rest>}`
+    : never
+  : '';
+
+type AllDiags<Board extends Connect4Board> = Values<{
+  [K in keyof DiagMap]: ConcatDiag<Board, DiagMap[K]>;
+}>
+
+type DiagWinner<Board extends Connect4Board> = WinnerDetect<AllDiags<Board>>;
+
 type Length<T extends unknown[]> = T extends { length: infer L } ? L : never; 
 type NextBoard<Board extends Connect4Board, Move extends COLS, Chip extends Connect4Chips, Acc extends Connect4Board = [], Found extends boolean = false> =
   Length<Acc> extends 6
@@ -118,7 +120,6 @@ type ColWinner<Board extends Connect4Cell[][]> = Values<{
   [K in COLS]: ColState<Board, K>
 }>;
 
-type xxzz = 'b' extends 'a' | 'b' | 'c' ? true : false;
 type AnyWinner<Board extends Connect4Cell[][]> =
   RowWinner<Board> | ColWinner<Board> | DiagWinner<Board>; 
 
@@ -139,6 +140,3 @@ type Connect4<Game extends Connect4Game, Move extends COLS> =
   Game['state'] extends Connect4Chips 
   ? NextGame<NextBoard<Game['board'], Move, Game['state']>, Game['state']>
   : Game;
-
-type xz = Connect4<NewGame, 0>
-type xzzz = xz['board'][5]

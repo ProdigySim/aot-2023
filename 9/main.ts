@@ -1,0 +1,1 @@
+type Reverse<T extends string> = T extends `${infer S}${infer U}` ? `${Reverse<U>}${S}` : '';
